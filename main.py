@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
-"""news-image-20261126 entrypoint: copy the shipped entry.png to the
-output directory. Stdlib only; resolves the image from this file's own
-directory, never from the working directory.
+"""Copy the shipped front-page image to the grader's output directory.
+
+Stdlib only. The image lives beside this file in the repository, so it is
+resolved from this file's own directory and never from the working
+directory. Both grader runs therefore write identical bytes.
 """
+
 import os
 import shutil
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(HERE, "entry.png")
+OUT_DIR = os.environ.get("MAKEFUN_OUTPUT_DIR", "./out")
+DST = os.path.join(OUT_DIR, "entry.png")
 
-def main():
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "out")
-    os.makedirs(out_dir, exist_ok=True)
-    here = os.path.dirname(os.path.abspath(__file__))
-    src = os.path.join(here, "entry.png")
-    if not os.path.isfile(src):
-        raise SystemExit("entry.png missing next to main.py")
-    dst = os.path.join(out_dir, "entry.png")
-    shutil.copyfile(src, dst)
-    if os.path.getsize(dst) != os.path.getsize(src):
-        raise SystemExit("entry.png copy is incomplete")
-    print(f"copied entry.png ({os.path.getsize(dst)} bytes) to {dst}")
-
-
-if __name__ == "__main__":
-    main()
+os.makedirs(OUT_DIR, exist_ok=True)
+shutil.copyfile(SRC, DST)
+if os.path.getsize(SRC) != os.path.getsize(DST):
+    raise SystemExit("entry.png copy size mismatch")
+print(f"wrote {DST} ({os.path.getsize(DST)} bytes)")
